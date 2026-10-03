@@ -1,0 +1,56 @@
+{
+  "name": "pi-model-fast",
+  "version": "0.1.0",
+  "description": "Fast mode for Pi with an automatically refreshed model catalog",
+  "type": "module",
+  "license": "MIT",
+  "author": "jiuai233",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiuai233/pi-model-fast.git"
+  },
+  "homepage": "https://github.com/jiuai233/pi-model-fast#readme",
+  "bugs": {
+    "url": "https://github.com/jiuai233/pi-model-fast/issues"
+  },
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "fast",
+    "openai",
+    "codex"
+  ],
+  "files": [
+    "src/",
+    "catalog/",
+    "README.md",
+    "LICENSE"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "scripts": {
+    "test": "node --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "update:catalog": "node scripts/update-catalog.ts",
+    "check": "npm run typecheck && npm test"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "1.0.0",
+    "@types/node": "^24.19.1",
+    "typescript": "^7.0.2"
+  }
+}

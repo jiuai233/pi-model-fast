@@ -1,70 +1,80 @@
 # pi-model-fast
 
-Pi 模型 Fast 扩展，提供按模型保存的开关、Fast 状态标识和自动更新的能力清单。
+Fast mode for Pi, with per-model OpenAI/Codex priority controls, colored status indicators, and an automatically refreshed model capability catalog.
 
-支持 `openai` 与 `openai-codex`。供应商适配位于 `src/providers.ts`，能力数据位于 `src/catalog.ts`。
+[简体中文](README.zh-CN.md)
 
-## 安装
+![Fast enabled in Pi](https://raw.githubusercontent.com/jiuai233/pi-model-fast/main/docs/assets/fast-status.png)
 
-依赖 Node.js 24+、Pi 1.0.0+。
+## Quick start
+
+Requires Node.js 24+ and Pi 1.0.0+.
 
 ```bash
 pi install git:github.com/jiuai233/pi-model-fast
 ```
 
-在 Pi 中运行：
+Inside Pi:
 
 ```text
 /reload
 /fast on
 ```
 
-默认关闭。开关按供应商和模型分别保存；切换模型不会自动开启未配置的模型。其他 Fast 扩展应停用，避免同时改写请求。
+Fast is off by default. Settings are saved separately for each provider and model. Switching models does not enable Fast on an unconfigured model. Disable other Fast extensions to avoid competing request changes.
 
-## 命令
+**Fast may increase provider usage or cost.** Account access, endpoint support, and provider rules still apply.
 
-| 命令 | 功能 |
+## Features
+
+- Supports OpenAI API and Codex models declared Fast-capable in the official catalog.
+- Preserves the selected model, reasoning effort, and tools.
+- Sends OpenAI/Codex `service_tier: "priority"` when enabled.
+- Shows a colored lightning indicator with `Fast ON`; hides the indicator when off.
+- Refreshes model capabilities without using model credits or reading OpenAI credentials.
+
+## Commands
+
+| Command | Action |
 | --- | --- |
-| `/fast` | 切换当前模型的 Fast 开关 |
-| `/fast on`、`/fast off` | 开启或关闭当前模型 |
-| `/fast status` | 查看当前模型状态 |
-| `/fast list` | 查看 Fast 能力清单 |
-| `/fast refresh` | 立即同步官方能力清单 |
+| `/fast` | Toggle Fast for the current model |
+| `/fast on`, `/fast off` | Enable or disable Fast |
+| `/fast status` | Show the model's setting, capability, and last request failure |
+| `/fast list` | List Fast-capable models |
+| `/fast refresh` | Refresh the official capability catalog immediately |
 
-## 状态显示
+## Status indicator
 
-- 绿色闪电 + `Fast ON`：当前模型已开启，Fast 参数可用。
-- 红色闪电 + `Fast ON`：当前模型无法应用 Fast 参数，或最近一次 Fast 请求失败；请求成功后恢复绿色。
-- 关闭时隐藏状态标识。
+- **Green lightning + `Fast ON`:** enabled and ready to apply Fast parameters.
+- **Red lightning + `Fast ON`:** Fast parameters cannot be applied, or the latest Fast request failed. A successful retry restores green.
+- **Off:** the indicator is hidden.
 
-`/fast status` 显示开关、能力和最近一次请求失败状态。手动开启或关闭会清除当前模型的失败记录。取消请求不计为失败。
+Manual enable/disable clears the current model's failure record. Cancelling a request is not counted as a failure. Turning Fast off stops this extension from injecting parameters; it leaves parameters set by other sources intact.
 
-OpenAI/Codex 请求使用 `service_tier: "priority"`。Fast 开启不改变模型、思考强度或工具。关闭后停止注入，不覆盖其他来源已设置的请求参数。
+Catalog support does not guarantee account access or faster responses. Codex can echo `service_tier: "default"` even when the request used `priority`; that response field alone cannot verify acceleration.
 
-Fast 会增加服务商用量或费用。清单声明表示模型具备对应能力，实际可用性仍受账号、端点和服务商规则影响。Codex 返回的 `service_tier: "default"` 无法单独判定 Fast 是否生效。
+## Automatic model catalog
 
-## 清单更新
+The capability source is the [official OpenAI Codex model catalog](https://github.com/openai/codex/blob/main/codex-rs/models-manager/models.json), using `service_tiers` and `additional_speed_tiers`.
 
-数据源为 [OpenAI Codex 官方模型目录](https://github.com/openai/codex/blob/main/codex-rs/models-manager/models.json)中的 `service_tiers` 和 `additional_speed_tiers`。
+Models declaring `priority` or `fast` enter the Codex catalog. Models also declaring `supported_in_api` enter the OpenAI API catalog. Catalog additions do not enable Fast automatically.
 
-声明 `priority` 或 `fast` 的模型进入 Codex 清单；同时声明 `supported_in_api` 的模型也进入 OpenAI API 清单。未声明 Fast 的模型不会自动开启。
+- A capability snapshot is bundled with the extension.
+- Startup and task submission check the cache; snapshots older than six hours refresh in the background.
+- Failed refreshes retain the last catalog and show a notification. Automatic retries are spaced six hours apart.
+- `/fast refresh` refreshes immediately.
+- GitHub Actions checks upstream every six hours and commits catalog changes.
 
-- 随包提供能力快照。
-- 启动和提交任务时检查缓存；超过六小时后后台刷新。
-- 刷新失败沿用已有清单，并显示通知；自动刷新重试间隔为六小时。
-- `/fast refresh` 立即重新拉取清单。
-- GitHub Actions 每六小时检查上游，清单变化时提交更新。
+Catalog refreshes access public GitHub data, make no model requests, and consume no model credits. Snapshots contain model names, identifiers, and providers; no upstream prompts or account data are retained.
 
-目录同步访问公开 GitHub 数据，不读取 OpenAI 登录凭据，不调用模型，不消耗模型额度。快照仅包含模型名称、标识和供应商信息，不保存上游提示或账号信息。
+## Local settings
 
-## 本地文件
+Files are stored under the Pi configuration directory's `extensions/` folder, normally `~/.pi/agent/extensions/`. `PI_CODING_AGENT_DIR` is respected.
 
-文件保存在 Pi 配置目录下的 `extensions/`，默认目录为 `~/.pi/agent/extensions/`，遵循 `PI_CODING_AGENT_DIR`：
+- `pi-model-fast.json`: per-model settings.
+- `pi-model-fast-catalog.json`: capability cache.
 
-- `pi-model-fast.json`：模型开关。
-- `pi-model-fast-catalog.json`：能力缓存。
-
-配置示例：
+Example:
 
 ```json
 {
@@ -75,7 +85,7 @@ Fast 会增加服务商用量或费用。清单声明表示模型具备对应能
 }
 ```
 
-## 开发
+## Development
 
 ```bash
 npm ci --ignore-scripts
@@ -83,23 +93,25 @@ npm run check
 npm run update:catalog
 ```
 
-测试使用临时目录和模拟事件，不访问真实模型。新增供应商需加入适配器、官方能力来源及对应测试。
+Tests use temporary directories and simulated extension events; they make no real model requests.
 
-## 更新与卸载
+Provider adapters are in `src/providers.ts`; capability handling is in `src/catalog.ts`. New providers require an adapter, an official capability source, and corresponding tests.
+
+## Update or uninstall
 
 ```bash
 pi update git:github.com/jiuai233/pi-model-fast
 pi remove git:github.com/jiuai233/pi-model-fast
 ```
 
-更新或卸载后运行 `/reload`。卸载不会删除开关和能力缓存。
+Run `/reload` afterward. Uninstalling leaves settings and cached capabilities intact.
 
-## 协议与参考
+## References
 
-- [Pi 扩展 API](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md)
-- [OpenAI Codex 服务档位映射](https://github.com/openai/codex/blob/main/codex-rs/protocol/src/config_types.rs)
-- [OpenAI Codex Fast](https://developers.openai.com/codex/speed)
+- [Pi extension API](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md)
+- [OpenAI Codex service tier mapping](https://github.com/openai/codex/blob/main/codex-rs/protocol/src/config_types.rs)
+- [OpenAI Codex Fast mode](https://developers.openai.com/codex/speed)
 
-## 许可证
+## License
 
-MIT。
+MIT.

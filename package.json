@@ -1,7 +1,7 @@
 {
   "name": "pi-model-fast",
-  "version": "0.1.1",
-  "description": "Fast mode for Pi with an automatically refreshed model catalog",
+  "version": "0.1.2",
+  "description": "Fast mode for Pi: per-model OpenAI/Codex priority controls and an auto-refreshing model catalog",
   "type": "module",
   "license": "MIT",
   "author": "jiuai233",
@@ -17,6 +17,10 @@
     "pi-package",
     "pi-extension",
     "fast",
+    "fast-mode",
+    "priority",
+    "service-tier",
+    "pi-coding-agent",
     "openai",
     "codex"
   ],
@@ -24,9 +28,12 @@
     "src/",
     "catalog/",
     "README.md",
+    "README.zh-CN.md",
+    "docs/assets/fast-status.png",
     "LICENSE"
   ],
   "pi": {
+    "image": "https://raw.githubusercontent.com/jiuai233/pi-model-fast/main/docs/assets/fast-status.png",
     "extensions": [
       "./src/index.ts"
     ]

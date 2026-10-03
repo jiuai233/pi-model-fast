@@ -24,10 +24,10 @@ export function canUseFast(model: ModelIdentity | undefined, catalog: Catalog): 
   return !!adapterFor(model) && catalog.models.some((entry) => modelKey(entry) === modelKey(model!));
 }
 
-export function fastStatus(model: ModelIdentity | undefined, enabled: boolean, catalog: Catalog, requesting = false): string {
+export function fastStatus(model: ModelIdentity | undefined, enabled: boolean, catalog: Catalog): string {
   if (!model) return "Fast · 未选择模型";
   if (!adapterFor(model)) return "Fast · 未适配";
   if (!canUseFast(model, catalog)) return "Fast · 清单未收录";
   if (!enabled) return "Fast · 已关闭";
-  return requesting ? "⚡ Fast · 请求中" : "⚡ Fast";
+  return "Fast ON";
 }

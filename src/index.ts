@@ -16,12 +16,21 @@ export default function modelFast(pi: ExtensionAPI): void {
   let catalog = loadCatalog(cacheFile, bundledFile);
   let refreshing: Promise<void> | undefined;
   let lastRefreshAttempt = 0;
+  let requestModel: string | undefined;
+  const failedModels = new Set<string>();
 
   function enabled(ctx: ExtensionContext): boolean {
     return !!ctx.model && readSettings(settingsFile).enabledModels[modelKey(ctx.model)] === true;
   }
-  function showStatus(ctx: ExtensionContext, requesting = false): void {
-    ctx.ui.setStatus(STATUS_KEY, fastStatus(ctx.model, enabled(ctx), catalog, requesting));
+  function showStatus(ctx: ExtensionContext): void {
+    if (!enabled(ctx)) {
+      ctx.ui.setStatus(STATUS_KEY, undefined);
+      return;
+    }
+    const failed = !canUseFast(ctx.model, catalog) || failedModels.has(modelKey(ctx.model!));
+    const bolt = ctx.ui.theme.fg(failed ? "error" : "success", "⚡\uFE0E");
+    const label = ctx.ui.theme.fg("accent", "Fast ON");
+    ctx.ui.setStatus(STATUS_KEY, `${bolt} ${label}`);
   }
   function updateCatalog(ctx: ExtensionContext, force = false): Promise<void> | undefined {
     if (refreshing) return refreshing;
@@ -55,7 +64,8 @@ export default function modelFast(pi: ExtensionAPI): void {
         return;
       }
       if (argument === "status") {
-        ctx.ui.notify(`${fastStatus(ctx.model, enabled(ctx), catalog)} · ${ctx.model ? modelKey(ctx.model) : "无模型"}`, "info");
+        const failed = enabled(ctx) && failedModels.has(modelKey(ctx.model!));
+        ctx.ui.notify(`${fastStatus(ctx.model, enabled(ctx), catalog)}${failed ? " · 上次请求失败" : ""} · ${ctx.model ? modelKey(ctx.model) : "无模型"}`, "info");
         return;
       }
       if (!["", "on", "off"].includes(argument)) {
@@ -73,6 +83,7 @@ export default function modelFast(pi: ExtensionAPI): void {
         return;
       }
       setEnabled(settingsFile, modelKey(ctx.model), turnOn);
+      failedModels.delete(modelKey(ctx.model));
       showStatus(ctx);
       ctx.ui.notify(turnOn ? "Fast 已开启" : "Fast 已关闭", "info");
     },
@@ -85,17 +96,25 @@ export default function modelFast(pi: ExtensionAPI): void {
   pi.on("model_select", (_event, ctx) => { showStatus(ctx); });
   pi.on("before_agent_start", (_event, ctx) => { void updateCatalog(ctx); });
   pi.on("before_provider_request", async (event, ctx) => {
+    requestModel = undefined;
     if (!enabled(ctx)) return;
     if (!canUseFast(ctx.model, catalog) && refreshing) await refreshing;
     if (!canUseFast(ctx.model, catalog)) return;
     const payload = event.payload as Record<string, unknown> | null;
     if (!payload || Array.isArray(payload) || typeof payload !== "object" ||
         payload.model !== ctx.model?.id) return;
-    showStatus(ctx, true);
+    requestModel = modelKey(ctx.model!);
+    showStatus(ctx);
     return adapterFor(ctx.model)!.apply(payload);
   });
   pi.on("message_end", (event, ctx) => {
-    if (event.message.role === "assistant") showStatus(ctx);
+    if (event.message.role !== "assistant") return;
+    if (requestModel === modelKey({ provider: event.message.provider, id: event.message.model })) {
+      if (event.message.stopReason === "error") failedModels.add(requestModel);
+      else if (event.message.stopReason !== "aborted") failedModels.delete(requestModel);
+      requestModel = undefined;
+    }
+    showStatus(ctx);
   });
   pi.on("agent_end", (_event, ctx) => { showStatus(ctx); });
   pi.on("session_shutdown", (_event, ctx) => { ctx.ui.setStatus(STATUS_KEY, undefined); });

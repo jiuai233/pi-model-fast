@@ -8,8 +8,7 @@ const model = { provider: "openai-codex", id: "gpt-6.1-sol", api: "openai-codex-
 
 test("Fast UI and wire priority remain separate", () => {
   assert.equal(canUseFast(model, catalog), true);
-  assert.equal(fastStatus(model, true, catalog), "⚡ Fast");
-  assert.equal(fastStatus(model, true, catalog, true), "⚡ Fast · 请求中");
+  assert.equal(fastStatus(model, true, catalog), "Fast ON");
   assert.equal(fastStatus(model, false, catalog), "Fast · 已关闭");
   const original = { model: model.id, input: [] };
   assert.deepEqual(adapterFor(model)!.apply(original), { ...original, service_tier: "priority" });

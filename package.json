@@ -1,6 +1,6 @@
 {
   "name": "pi-model-fast",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fast mode for Pi with an automatically refreshed model catalog",
   "type": "module",
   "license": "MIT",

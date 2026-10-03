@@ -11,8 +11,10 @@ Fast mode for Pi, with per-model OpenAI/Codex priority controls, colored status 
 Requires Node.js 24+ and Pi 1.0.0+.
 
 ```bash
-pi install git:github.com/jiuai233/pi-model-fast
+pi install npm:pi-model-fast
 ```
+
+GitHub installation is also available: `pi install git:github.com/jiuai233/pi-model-fast`. Choose one source.
 
 Inside Pi:
 
@@ -100,9 +102,11 @@ Provider adapters are in `src/providers.ts`; capability handling is in `src/cata
 ## Update or uninstall
 
 ```bash
-pi update git:github.com/jiuai233/pi-model-fast
-pi remove git:github.com/jiuai233/pi-model-fast
+pi update npm:pi-model-fast
+pi remove npm:pi-model-fast
 ```
+
+For a GitHub installation, use `git:github.com/jiuai233/pi-model-fast` as the source instead.
 
 Run `/reload` afterward. Uninstalling leaves settings and cached capabilities intact.
 

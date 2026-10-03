@@ -13,8 +13,10 @@ Pi 模型 Fast 扩展，提供按模型保存的开关、Fast 状态标识和自
 依赖 Node.js 24+、Pi 1.0.0+。
 
 ```bash
-pi install git:github.com/jiuai233/pi-model-fast
+pi install npm:pi-model-fast
 ```
+
+也可通过 GitHub 安装：`pi install git:github.com/jiuai233/pi-model-fast`。选择一种来源即可。
 
 在 Pi 中运行：
 
@@ -92,9 +94,11 @@ npm run update:catalog
 ## 更新与卸载
 
 ```bash
-pi update git:github.com/jiuai233/pi-model-fast
-pi remove git:github.com/jiuai233/pi-model-fast
+pi update npm:pi-model-fast
+pi remove npm:pi-model-fast
 ```
+
+通过 GitHub 安装时，将命令中的来源替换为 `git:github.com/jiuai233/pi-model-fast`。
 
 更新或卸载后运行 `/reload`。卸载不会删除开关和能力缓存。
 

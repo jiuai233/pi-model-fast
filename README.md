@@ -1,8 +1,14 @@
 # pi-model-fast
 
-Fast mode for Pi, with per-model OpenAI/Codex priority controls, colored status indicators, and an automatically refreshed model capability catalog.
+**Per-model Fast controls for Pi's OpenAI and Codex models.**
 
-[简体中文](README.zh-CN.md)
+[npm](https://www.npmjs.com/package/pi-model-fast) · [Quick start](#quick-start) · [Commands](#commands) · [简体中文](README.zh-CN.md)
+
+- **A switch for each model:** enable Fast with `/fast on`; settings persist separately for each provider and model.
+- **Visible state:** a colored lightning indicator shows when Fast is enabled and flags the latest request failure.
+- **An up-to-date capability catalog:** supported models are refreshed from the official OpenAI Codex catalog, without model requests or OpenAI credentials.
+
+Fast sends `service_tier: "priority"` for supported OpenAI API and Codex models while preserving the selected model, reasoning effort, and tools.
 
 ![Fast enabled in Pi](https://raw.githubusercontent.com/jiuai233/pi-model-fast/main/docs/assets/fast-status.png)
 
@@ -14,8 +20,6 @@ Requires Node.js 24+ and Pi 1.0.0+.
 pi install npm:pi-model-fast
 ```
 
-GitHub installation is also available: `pi install git:github.com/jiuai233/pi-model-fast`. Choose one source.
-
 Inside Pi:
 
 ```text
@@ -23,17 +27,11 @@ Inside Pi:
 /fast on
 ```
 
+Alternative installation: `pi install git:github.com/jiuai233/pi-model-fast`. Choose either npm or GitHub, not both.
+
 Fast is off by default. Settings are saved separately for each provider and model. Switching models does not enable Fast on an unconfigured model. Disable other Fast extensions to avoid competing request changes.
 
 **Fast may increase provider usage or cost.** Account access, endpoint support, and provider rules still apply.
-
-## Features
-
-- Supports OpenAI API and Codex models declared Fast-capable in the official catalog.
-- Preserves the selected model, reasoning effort, and tools.
-- Sends OpenAI/Codex `service_tier: "priority"` when enabled.
-- Shows a colored lightning indicator with `Fast ON`; hides the indicator when off.
-- Refreshes model capabilities without using model credits or reading OpenAI credentials.
 
 ## Commands
 
@@ -109,6 +107,10 @@ pi remove npm:pi-model-fast
 For a GitHub installation, use `git:github.com/jiuai233/pi-model-fast` as the source instead.
 
 Run `/reload` afterward. Uninstalling leaves settings and cached capabilities intact.
+
+## Feedback
+
+[Bug reports and feature requests](https://github.com/jiuai233/pi-model-fast/issues) are welcome. Useful details include the Pi version, provider/model ID, `/fast status` output, and expected versus actual behavior. Credentials and private prompts should be omitted.
 
 ## References
 

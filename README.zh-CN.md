@@ -1,12 +1,16 @@
 # pi-model-fast
 
-Pi 模型 Fast 扩展，提供按模型保存的开关、Fast 状态标识和自动更新的能力清单。
+**为 Pi 的 OpenAI API / Codex 模型提供独立的 Fast 开关。**
 
-[English](README.md)
+[npm](https://www.npmjs.com/package/pi-model-fast) · [安装](#安装) · [命令](#命令) · [English](README.md)
+
+- **每个模型一个开关**：通过 `/fast on` 开启，设置按供应商和模型分别保存。
+- **状态直接可见**：彩色闪电显示 Fast 是否开启，并标记最近一次请求失败。
+- **能力清单自动更新**：跟随 OpenAI Codex 官方模型目录刷新，不调用模型、不读取 OpenAI 登录凭据。
+
+支持官方清单声明具备 Fast 能力的模型；开启时使用 `service_tier: "priority"`，保留原有模型、思考强度和工具设置。
 
 ![Pi 中已开启的 Fast 状态](https://raw.githubusercontent.com/jiuai233/pi-model-fast/main/docs/assets/fast-status.png)
-
-支持 `openai` 与 `openai-codex`。供应商适配位于 `src/providers.ts`，能力数据位于 `src/catalog.ts`。
 
 ## 安装
 
@@ -16,14 +20,14 @@ Pi 模型 Fast 扩展，提供按模型保存的开关、Fast 状态标识和自
 pi install npm:pi-model-fast
 ```
 
-也可通过 GitHub 安装：`pi install git:github.com/jiuai233/pi-model-fast`。选择一种来源即可。
-
 在 Pi 中运行：
 
 ```text
 /reload
 /fast on
 ```
+
+也可通过 GitHub 安装：`pi install git:github.com/jiuai233/pi-model-fast`。npm 与 GitHub 选择一种来源即可。
 
 默认关闭。开关按供应商和模型分别保存；切换模型不会自动开启未配置的模型。其他 Fast 扩展应停用，避免同时改写请求。
 
@@ -89,7 +93,7 @@ npm run check
 npm run update:catalog
 ```
 
-测试使用临时目录和模拟事件，不访问真实模型。新增供应商需加入适配器、官方能力来源及对应测试。
+测试使用临时目录和模拟事件，不访问真实模型。供应商适配位于 `src/providers.ts`，能力数据位于 `src/catalog.ts`；新增供应商需加入适配器、官方能力来源及对应测试。
 
 ## 更新与卸载
 
@@ -101,6 +105,10 @@ pi remove npm:pi-model-fast
 通过 GitHub 安装时，将命令中的来源替换为 `git:github.com/jiuai233/pi-model-fast`。
 
 更新或卸载后运行 `/reload`。卸载不会删除开关和能力缓存。
+
+## 反馈
+
+问题与功能建议可提交至 [GitHub Issues](https://github.com/jiuai233/pi-model-fast/issues)。有效的反馈信息包括 Pi 版本、供应商与模型 ID、`/fast status` 输出、预期行为和实际行为；不包含凭据或私人提示词。
 
 ## 协议与参考
 

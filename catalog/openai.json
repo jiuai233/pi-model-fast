@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-03T07:02:26.503Z",
+  "updatedAt": "2026-10-26T22:19:18.468Z",
   "source": "https://raw.githubusercontent.com/openai/codex/main/codex-rs/models-manager/models.json",
   "models": [
     {
@@ -49,6 +49,11 @@
       "name": "GPT-6.1-Sol"
     },
     {
+      "provider": "openai-codex",
+      "id": "gpt-6.1-terra",
+      "name": "GPT-6.1 Terra"
+    },
+    {
       "provider": "openai",
       "id": "codex-auto-review",
       "name": "Codex Auto Review"
@@ -92,6 +97,11 @@
       "provider": "openai",
       "id": "gpt-6.1-sol",
       "name": "GPT-6.1-Sol"
+    },
+    {
+      "provider": "openai",
+      "id": "gpt-6.1-terra",
+      "name": "GPT-6.1 Terra"
     }
   ]
 }

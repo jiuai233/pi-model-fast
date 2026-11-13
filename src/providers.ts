@@ -15,13 +15,23 @@ export const adapters: FastAdapter[] = [{
   apply: (payload) => ({ ...payload, service_tier: "priority" }),
 }];
 
+function catalogModel(model: ModelIdentity): ModelIdentity {
+  if (model.provider === "magpie" && model.api === "openai-responses" && model.id.startsWith("codex/")) {
+    return { ...model, provider: "openai-codex", id: model.id.slice("codex/".length) };
+  }
+  return model;
+}
+
 export function adapterFor(model: ModelIdentity | undefined): FastAdapter | undefined {
-  return model && adapters.find((adapter) =>
-    adapter.providers.includes(model.provider) && adapter.supportsApi(model.api));
+  if (!model) return;
+  const upstream = catalogModel(model);
+  return adapters.find((adapter) =>
+    adapter.providers.includes(upstream.provider) && adapter.supportsApi(upstream.api));
 }
 
 export function canUseFast(model: ModelIdentity | undefined, catalog: Catalog): boolean {
-  return !!adapterFor(model) && catalog.models.some((entry) => modelKey(entry) === modelKey(model!));
+  return !!model && !!adapterFor(model) &&
+    catalog.models.some((entry) => modelKey(entry) === modelKey(catalogModel(model)));
 }
 
 export function fastStatus(model: ModelIdentity | undefined, enabled: boolean, catalog: Catalog): string {

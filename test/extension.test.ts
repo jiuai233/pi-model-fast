@@ -7,7 +7,10 @@ import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-a
 import modelFast from "../src/index.ts";
 import { readSettings } from "../src/settings.ts";
 
-test("the command, request injection and status lifecycle work together", async () => {
+for (const model of [
+  { provider: "openai-codex", id: "gpt-6.1-sol", api: "openai-codex-responses" },
+  { provider: "magpie", id: "codex/gpt-6.1-sol", api: "openai-responses" },
+]) test(`${model.provider}: the command, request injection and status lifecycle work together`, async () => {
   const old = process.env.PI_CODING_AGENT_DIR;
   const dir = mkdtempSync(join(tmpdir(), "pi-fast-extension-"));
   process.env.PI_CODING_AGENT_DIR = dir;
@@ -15,7 +18,6 @@ test("the command, request injection and status lifecycle work together", async 
   let handler: (args: string, ctx: ExtensionContext) => Promise<void>;
   let status: string | undefined;
   const messages: string[] = [];
-  const model = { provider: "openai-codex", id: "gpt-6.1-sol", api: "openai-codex-responses" };
   const ctx = { model, ui: {
     theme: { fg: (color: string, text: string) => `<${color}>${text}</${color}>` },
     setStatus(_key: string, value: string | undefined) { status = value; },
@@ -34,7 +36,11 @@ test("the command, request injection and status lifecycle work together", async 
     const red = "<error>⚡\uFE0E</error> <accent>Fast ON</accent>";
     const assistant = { role: "assistant", provider: model.provider, model: model.id };
     assert.equal(status, green);
-    assert.equal(readSettings(join(dir, "extensions", "pi-model-fast.json")).enabledModels["openai-codex/gpt-6.1-sol"], true);
+    assert.equal(readSettings(join(dir, "extensions", "pi-model-fast.json")).enabledModels[`${model.provider}/${model.id}`], true);
+    if (model.provider === "magpie") {
+      assert.equal(readSettings(join(dir, "extensions", "pi-model-fast.json")).enabledModels["openai-codex/gpt-6.1-sol"], undefined);
+      assert.equal(await hooks.get("before_provider_request")!({ payload: { model: "gpt-6.1-sol" } }, ctx), undefined);
+    }
     const original = { model: model.id, input: [] };
     assert.deepEqual(await hooks.get("before_provider_request")!({ payload: original }, ctx), { ...original, service_tier: "priority" });
     assert.equal(status, green);

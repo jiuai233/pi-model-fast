@@ -10,6 +10,8 @@
 
 Fast sends `service_tier: "priority"` for supported OpenAI API and Codex models while preserving the selected model, reasoning effort, and tools.
 
+Magpie `codex/<model>` routes using `openai-responses` are checked against the corresponding Codex capability. The full route stays in the request, and Magpie forwards the priority parameter upstream. Settings are saved separately under `magpie/codex/<model>`. Automatic and custom routing groups are not marked supported without known upstream capabilities. See Magpie’s [Responses implementation](https://github.com/yetone/magpie/blob/v0.1.1792/internal/gateway/responses.go) for tier parsing and forwarding.
+
 ![Fast enabled in Pi](https://raw.githubusercontent.com/jiuai233/pi-model-fast/main/docs/assets/fast-status.png)
 
 ## Quick start

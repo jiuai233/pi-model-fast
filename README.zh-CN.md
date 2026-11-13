@@ -10,6 +10,8 @@
 
 支持官方清单声明具备 Fast 能力的模型；开启时使用 `service_tier: "priority"`，保留原有模型、思考强度和工具设置。
 
+Magpie 的 `codex/<模型>` 路由使用 `openai-responses` 时，按对应的 Codex 模型核对 Fast 能力，保留完整路由名称并注入优先级参数。Magpie 负责转发到上游，Fast 开关独立保存在 `magpie/codex/<模型>` 下。`auto/` 和自定义路由组的上游能力未确定，不自动标记为支持。Magpie 的参数解析与转发见 [Responses 实现](https://github.com/yetone/magpie/blob/v0.1.1792/internal/gateway/responses.go)。
+
 ![Pi 中已开启的 Fast 状态](https://raw.githubusercontent.com/jiuai233/pi-model-fast/main/docs/assets/fast-status.png)
 
 ## 安装
